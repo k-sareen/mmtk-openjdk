@@ -33,7 +33,7 @@ once_cell = "1.10.0"
 mmtk = { path = "../../mmtk-core" }
 
 [features]
-default = ["mmtk/analysis", "mmtk/malloc_tcmalloc", "mark_bit_in_header"]
+default = ["mmtk/analysis", "mmtk/malloc_mimalloc", "mark_bit_in_header"]
 mmtk_extreme_assertions = ["mmtk/extreme_assertions"]
 nogc_lock_free = ["mmtk/nogc_lock_free"]
 nogc_no_zeroing = ["mmtk/nogc_no_zeroing"]
