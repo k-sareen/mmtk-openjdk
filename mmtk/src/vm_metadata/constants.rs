@@ -50,11 +50,17 @@ cfg_if::cfg_if! {
         /// 2 bits per object
         pub(crate) const FORWARDING_BITS_METADATA_SPEC: VMLocalForwardingBitsSpec =
             VMLocalForwardingBitsSpec::side_after(LAST_SIDE_SPEC_AFTER_MARK);
+
+        #[allow(unused)]
+        const LAST_SIDE_SPEC_AFTER_FORWARDING: &MetadataSpec = FORWARDING_BITS_METADATA_SPEC.as_spec();
     } else {
         /// PolicySpecific object forwarding status metadata spec
         /// 2 bits per object
         pub(crate) const FORWARDING_BITS_METADATA_SPEC: VMLocalForwardingBitsSpec =
             VMLocalForwardingBitsSpec::in_header(FORWARDING_BITS_OFFSET);
+
+        #[allow(unused)]
+        const LAST_SIDE_SPEC_AFTER_FORWARDING: &MetadataSpec = LAST_SIDE_SPEC_AFTER_MARK;
     }
 }
 
@@ -62,5 +68,8 @@ cfg_if::cfg_if! {
 /// 2-bits per object
 pub(crate) const LOS_METADATA_SPEC: VMLocalLOSMarkNurserySpec =
     VMLocalLOSMarkNurserySpec::side_first();
+
+#[cfg(feature = "object_pinning")]
+pub(crate) const PINNING_BIT_SPEC: VMLocalPinningBitSpec = VMLocalPinningBitSpec::side_after(LAST_SIDE_SPEC_AFTER_FORWARDING);
 
 // PolicySpecific MetadataSpecs - End

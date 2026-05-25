@@ -36,15 +36,15 @@ probe = "0.5"
 # - change branch
 # - change repo name
 # But other changes including adding/removing whitespaces in commented lines may break the CI.
-mmtk = { git = "https://github.com/mmtk/mmtk-core.git", rev = "37d81218028d788f7a24158aac0588c3f6925d08" }
+# mmtk = { git = "https://github.com/mmtk/mmtk-core.git", rev = "37d81218028d788f7a24158aac0588c3f6925d08" }
 # Uncomment the following to build locally
-# mmtk = { path = "../repos/mmtk-core" }
+mmtk = { path = "../../mmtk-core" }
 
 [build-dependencies]
 built = { version = "0.7.7", features = ["git2"] }
 
 [features]
-default = []
+default = ["object_pinning"]
 mmtk_extreme_assertions = ["mmtk/extreme_assertions"]
 nogc_lock_free = ["mmtk/nogc_lock_free"]
 nogc_no_zeroing = ["mmtk/nogc_no_zeroing"]
@@ -57,6 +57,9 @@ mark_bit_in_header = []
 
 # Place the forwarding bits on the side instead of in the header of objects.
 forwarding_bits_on_side = []
+
+# Allow object pinning
+object_pinning = ["mmtk/object_pinning"]
 
 # Use malloc mark sweep - we should only run marksweep with this feature turned on.
 malloc_mark_sweep = ["mmtk/malloc_mark_sweep"]
