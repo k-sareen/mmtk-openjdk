@@ -177,7 +177,7 @@ fn oop_iterate_slow<const COMPRESSED: bool, V: SlotVisitor<S<COMPRESSED>>>(
             mem::transmute::<*const unsafe extern "C" fn(Address), *mut libc::c_void>(
                 scan_object_fn::<COMPRESSED, V> as *const unsafe extern "C" fn(slot: Address),
             ),
-            mem::transmute::<&OopDesc, ObjectReference>(oop),
+            ObjectReference::from(oop),
             tls,
         );
     }
@@ -190,7 +190,7 @@ fn oop_iterate<const COMPRESSED: bool>(oop: Oop, closure: &mut impl SlotVisitor<
         klass_id as i32 >= 0 && (klass_id as i32) < KlassKind::Unknown as i32,
         "Invalid klass-id: {:x} for oop: {:x}",
         klass_id as i32,
-        unsafe { mem::transmute::<Oop, ObjectReference>(oop) }
+        ObjectReference::from(oop)
     );
     match klass_id {
         KlassKind::Instance => {
@@ -245,7 +245,5 @@ pub fn scan_object<const COMPRESSED: bool>(
     closure: &mut impl SlotVisitor<S<COMPRESSED>>,
     _tls: VMWorkerThread,
 ) {
-    unsafe {
-        oop_iterate::<COMPRESSED>(mem::transmute::<ObjectReference, &OopDesc>(object), closure)
-    }
+    oop_iterate::<COMPRESSED>(<&OopDesc>::from(object), closure)
 }

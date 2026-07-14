@@ -300,11 +300,17 @@ static void mmtk_enqueue_references(void** objects, size_t len) {
     return;
   }
 
-  oop first = (oop) objects[0]; // This points to the first node of the linked list.
+  // `objects` holds `len` compact (32-bit) object references packed back-to-back, not `len` pointer-sized
+  // (8-byte) slots, so it must be indexed as a `narrowOop*`, not a `void**`. Each entry is decoded into a
+  // real `oop` via the Access API's `oop_load`, which decompresses it the same way OpenJDK decompresses
+  // any other narrowOop.
+  narrowOop* narrow_objects = reinterpret_cast<narrowOop*>(objects);
+
+  oop first = RawAccess<>::oop_load(&narrow_objects[0]); // This points to the first node of the linked list.
   oop last = first; // This points to the last node of the linked list.
 
   for (size_t i = 1; i < len; i++) {
-    oop reff = (oop) objects[i];
+    oop reff = RawAccess<>::oop_load(&narrow_objects[i]);
 
     // Note that the `objects[]` array may contain duplicated elements.
     // References live after the previous collection will remain in the `ReferenceProcessor` in mmtk-core,

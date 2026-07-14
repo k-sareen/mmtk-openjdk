@@ -339,7 +339,7 @@ impl OopDesc {
 impl fmt::Debug for OopDesc {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let c_string = unsafe {
-            ((*UPCALLS).dump_object_string)(mem::transmute::<&OopDesc, ObjectReference>(self))
+            ((*UPCALLS).dump_object_string)(ObjectReference::from(self))
         };
         let c_str: &CStr = unsafe { CStr::from_ptr(c_string) };
         let s: &str = c_str.to_str().unwrap();
@@ -368,14 +368,14 @@ impl NarrowOop {
 /// Convert ObjectReference to Oop
 impl From<ObjectReference> for &OopDesc {
     fn from(o: ObjectReference) -> Self {
-        unsafe { mem::transmute(o) }
+        unsafe { &*o.to_raw_address().to_ptr::<OopDesc>() }
     }
 }
 
 /// Convert Oop to ObjectReference
 impl From<&OopDesc> for ObjectReference {
     fn from(o: &OopDesc) -> Self {
-        unsafe { mem::transmute(o) }
+        unsafe { ObjectReference::from_raw_address_unchecked(Address::from_ref(o)) }
     }
 }
 
