@@ -167,6 +167,12 @@ impl<const COMPRESSED: bool> OpenJDKSlot<COMPRESSED> {
             unsafe { self.addr.store(0) }
         }
     }
+
+    /// Create a slot from an object and an offset.
+    pub fn from_object_and_offset(object: ObjectReference, offset: isize) -> Self {
+        let addr = object.to_raw_address().offset(offset);
+        Self { addr }
+    }
 }
 
 impl<const COMPRESSED: bool> Slot for OpenJDKSlot<COMPRESSED> {

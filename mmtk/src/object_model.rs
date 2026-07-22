@@ -1,4 +1,5 @@
 use crate::abi::{KlassKind, Oop};
+use crate::slots::OpenJDKSlot;
 use crate::UPCALLS;
 use crate::{vm_metadata, OpenJDK};
 use mmtk::util::alloc::fill_alignment_gap;
@@ -104,5 +105,19 @@ impl<const COMPRESSED: bool> ObjectModel<OpenJDK<COMPRESSED>> for VMObjectModel<
         // The KlassKind must be one of the known variants, and cannot be InstanceStackChunk which we don't support.
         let kind = oop.klass::<COMPRESSED>().kind;
         (kind as i32) < (KlassKind::Unknown as i32) && kind != KlassKind::InstanceStackChunk
+    }
+
+    unsafe fn slot_from_object_and_offset(
+        object: ObjectReference,
+        offset: isize,
+    ) -> OpenJDKSlot<COMPRESSED> {
+        debug_assert!(offset >= 0, "Offset must be non-negative");
+        debug_assert!(
+            Self::get_current_size(object) as isize > offset,
+            "Offset must be within the object size"
+        );
+        // XXX(kunals): This is very hacky because we assume that the slot is
+        // always compressed because the heap size < 4 GB
+        OpenJDKSlot::from_object_and_offset(object, offset)
     }
 }
