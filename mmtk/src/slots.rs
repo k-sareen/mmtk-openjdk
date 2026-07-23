@@ -213,7 +213,11 @@ impl<const COMPRESSED: bool> Slot for OpenJDKSlot<COMPRESSED> {
     }
 
     fn as_address(&self) -> Address {
-        self.addr
+        if COMPRESSED {
+            self.untagged_address()
+        } else {
+            self.addr
+        }
     }
 }
 
