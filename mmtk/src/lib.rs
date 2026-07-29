@@ -96,6 +96,8 @@ pub struct OpenJDK_Upcalls {
     pub harness_begin: extern "C" fn(),
     pub harness_end: extern "C" fn(),
     pub compute_klass_mem_layout_checksum: extern "C" fn() -> usize,
+    pub compute_allocator_mem_layout_checksum: extern "C" fn() -> usize,
+    pub compute_mutator_mem_layout_checksum: extern "C" fn() -> usize,
     pub offset_of_static_fields: extern "C" fn() -> i32,
     pub static_oop_field_count_offset: extern "C" fn() -> i32,
     pub referent_offset: extern "C" fn() -> i32,

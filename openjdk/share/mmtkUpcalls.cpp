@@ -30,6 +30,7 @@
 #include "memory/resourceArea.hpp"
 #include "mmtkCollectorThread.hpp"
 #include "mmtkHeap.hpp"
+#include "mmtkMutator.hpp"
 #include "mmtkRootsClosure.hpp"
 #include "mmtkUpcalls.hpp"
 #include "mmtkVMCompanionThread.hpp"
@@ -261,6 +262,16 @@ static size_t compute_klass_mem_layout_checksum() {
     ^ sizeof(ObjArrayKlass);
 }
 
+static size_t compute_allocator_mem_layout_checksum() {
+  return sizeof(ImmixAllocator)
+    ^ sizeof(BumpAllocator)
+    ^ sizeof(LargeObjectAllocator);
+}
+
+static size_t compute_mutator_mem_layout_checksum() {
+  return sizeof(MMTkMutatorContext);
+}
+
 static int referent_offset() {
   return java_lang_ref_Reference::referent_offset();
 }
@@ -360,6 +371,8 @@ OpenJDK_Upcalls mmtk_upcalls = {
   mmtk_harness_begin,
   mmtk_harness_end,
   compute_klass_mem_layout_checksum,
+  compute_allocator_mem_layout_checksum,
+  compute_mutator_mem_layout_checksum,
   offset_of_static_fields,
   static_oop_field_count_offset,
   referent_offset,

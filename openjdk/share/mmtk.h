@@ -160,6 +160,8 @@ typedef struct {
     void (*harness_begin) ();
     void (*harness_end) ();
     size_t (*compute_klass_mem_layout_checksum) ();
+    size_t (*compute_allocator_mem_layout_checksum) ();
+    size_t (*compute_mutator_mem_layout_checksum) ();
     int (*offset_of_static_fields) ();
     int (*static_oop_field_count_offset) ();
     int (*referent_offset) ();

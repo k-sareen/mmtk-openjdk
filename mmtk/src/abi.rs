@@ -513,4 +513,15 @@ pub fn validate_memory_layouts() {
         panic!("Rust and C++ definitions don't match");
     }
     assert_eq!(vm_checksum, binding_checksum);
+
+    let binding_allocator_checksum =
+        unsafe { ((*UPCALLS).compute_allocator_mem_layout_checksum)() };
+
+    let core_checksum =
+        mmtk::memory_manager::compute_allocator_mem_layout_checksum::<crate::OpenJDK<false>>();
+    assert_eq!(binding_allocator_checksum, core_checksum);
+    let binding_mutator_checksum = unsafe { ((*UPCALLS).compute_mutator_mem_layout_checksum)() };
+    let core_mutator_checksum =
+        mmtk::memory_manager::compute_mutator_mem_layout_checksum::<crate::OpenJDK<false>>();
+    assert_eq!(binding_mutator_checksum, core_mutator_checksum);
 }
