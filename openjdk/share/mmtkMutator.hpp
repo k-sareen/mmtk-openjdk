@@ -11,6 +11,10 @@ enum Allocator {
   AllocatorLos = 2,
   AllocatorCode = 3,
   AllocatorReadOnly = 4,
+  AllocatorLargeCode = 5,
+  AllocatorNonMoving = 6,
+  AllocatorPrimitiveArray = 7,
+  AllocatorReferenceArray = 8,
 };
 
 struct RustDynPtr {

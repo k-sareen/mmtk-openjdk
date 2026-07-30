@@ -76,7 +76,7 @@ public:
   void enable_collection();
 
   virtual HeapWord* mem_allocate(size_t size, bool* gc_overhead_limit_was_exceeded);
-  HeapWord* mem_allocate_nonmove(size_t size, bool* gc_overhead_limit_was_exceeded);
+  virtual HeapWord* mem_allocate_array(size_t size, bool obj_array, bool* gc_overhead_limit_was_exceeded);
 
   MMTkVMCompanionThread* companion_thread() const {
     return _companion_thread;

@@ -540,8 +540,9 @@ HeapWord* MMTkHeap::mem_allocate(size_t size, bool* gc_overhead_limit_was_exceed
   return obj;
 }
 
-HeapWord* MMTkHeap::mem_allocate_nonmove(size_t size, bool* gc_overhead_limit_was_exceeded) {
-  return Thread::current()->third_party_heap_mutator.alloc(size << LogHeapWordSize, AllocatorLos);
+HeapWord* MMTkHeap::mem_allocate_array(size_t size, bool obj_array, bool* gc_overhead_limit_was_exceeded) {
+  Allocator allocator = obj_array ? AllocatorReferenceArray : AllocatorPrimitiveArray;
+  return Thread::current()->third_party_heap_mutator.alloc(size << LogHeapWordSize, allocator);
 }
 
 bool MMTkHeap::requires_barriers(stackChunkOop obj) const {
