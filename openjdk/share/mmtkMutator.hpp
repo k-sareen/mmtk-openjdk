@@ -29,6 +29,7 @@ const int MAX_MALLOC_ALLOCATORS = 1;
 const int MAX_IMMIX_ALLOCATORS = 2;
 const int MAX_FREE_LIST_ALLOCATORS = 2;
 const int MAX_MARK_COMPACT_ALLOCATORS = 1;
+const int MAX_COMPRESSOR_ALLOCATORS = 1;
 
 // The following types should have the same layout as the types with the same name in MMTk core (Rust)
 
@@ -93,6 +94,18 @@ struct MarkCompactAllocator {
   struct BumpAllocator bump_allocator;
 };
 
+struct CompressorAllocator {
+  void* tls;
+  void* cursor;
+  void* limit;
+  void* ref_cursor;
+  void* ref_limit;
+  void* non_ref_cursor;
+  void* non_ref_limit;
+  void* space;
+  void* context;
+};
+
 struct Allocators {
   BumpAllocator bump_pointer[MAX_BUMP_ALLOCATORS];
   LargeObjectAllocator large_object[MAX_LARGE_OBJECT_ALLOCATORS];
@@ -100,6 +113,7 @@ struct Allocators {
   ImmixAllocator immix[MAX_IMMIX_ALLOCATORS];
   MMTkFreeListAllocator free_list[MAX_FREE_LIST_ALLOCATORS];
   MarkCompactAllocator markcompact[MAX_MARK_COMPACT_ALLOCATORS];
+  CompressorAllocator compressor[MAX_COMPRESSOR_ALLOCATORS];
 };
 
 struct MutatorConfig {
