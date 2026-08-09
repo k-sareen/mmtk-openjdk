@@ -50,6 +50,9 @@ void MMTkBarrierSetAssembler::eden_allocate(MacroAssembler* masm, Register threa
     // I tried to set FastAllocateSizeLimit in MMTkHeap::initialize(). But there are still large objects allocated into the
     // default space.
     assert(MMTkMutatorContext::max_non_los_default_alloc_bytes != 0, "max_non_los_default_alloc_bytes hasn't been initialized");
+    assert((var_size_in_bytes == noreg && con_size_in_bytes > 0 && is_aligned(con_size_in_bytes, BytesPerWord))
+        || (var_size_in_bytes != noreg && (con_size_in_bytes == 1 || con_size_in_bytes == 0)), "invalid size parameters");
+
     size_t max_non_los_bytes = MMTkMutatorContext::max_non_los_default_alloc_bytes;
     size_t extra_header = 0;
     // fastpath, we only use default allocator
@@ -75,9 +78,18 @@ void MMTkBarrierSetAssembler::eden_allocate(MacroAssembler* masm, Register threa
       return;
     }
 
+    Allocator semantics = AllocatorDefault;
+    if (var_size_in_bytes != noreg) {
+      if (con_size_in_bytes == 1) {
+        semantics = AllocatorReferenceArray;
+      } else if (con_size_in_bytes == 0) {
+        semantics = AllocatorPrimitiveArray;
+      }
+    }
+
     // Calculate offsets of TLAB top and end
     Address cursor, limit;
-    MMTkAllocatorOffsets alloc_offsets = get_tlab_top_and_end_offsets(selector);
+    MMTkAllocatorOffsets alloc_offsets = get_tlab_top_and_end_offsets(selector, semantics);
 
     cursor = Address(r15_thread, alloc_offsets.tlab_top_offset);
     limit = Address(r15_thread, alloc_offsets.tlab_end_offset);

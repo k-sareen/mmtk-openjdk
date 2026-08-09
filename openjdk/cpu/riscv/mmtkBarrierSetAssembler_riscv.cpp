@@ -79,9 +79,18 @@ void MMTkBarrierSetAssembler::eden_allocate(MacroAssembler* masm, Register obj, 
       return;
     }
 
+    Allocator semantics = AllocatorDefault;
+    if (var_size_in_bytes != noreg) {
+      if (con_size_in_bytes == 1) {
+        semantics = AllocatorReferenceArray;
+      } else if (con_size_in_bytes == 0) {
+        semantics = AllocatorPrimitiveArray;
+      }
+    }
+
     // Calculate offsets of TLAB top and end
     Address cursor, limit;
-    MMTkAllocatorOffsets alloc_offsets = get_tlab_top_and_end_offsets(selector);
+    MMTkAllocatorOffsets alloc_offsets = get_tlab_top_and_end_offsets(selector, semantics);
 
     cursor = Address(xthread, alloc_offsets.tlab_top_offset);
     limit = Address(xthread, alloc_offsets.tlab_end_offset);

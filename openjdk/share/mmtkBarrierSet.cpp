@@ -41,7 +41,7 @@ bool mmtk_enable_allocation_fastpath = true;
 bool mmtk_enable_barrier_fastpath = true;
 bool mmtk_enable_reference_load_barrier = true;
 
-MMTkAllocatorOffsets get_tlab_top_and_end_offsets(AllocatorSelector selector) {
+MMTkAllocatorOffsets get_tlab_top_and_end_offsets(AllocatorSelector selector, Allocator semantics) {
   int tlab_top_offset, tlab_end_offset;
   int allocators_base_offset = in_bytes(JavaThread::third_party_heap_mutator_offset())
     + in_bytes(byte_offset_of(MMTkMutatorContext, allocators));
@@ -65,6 +65,30 @@ MMTkAllocatorOffsets get_tlab_top_and_end_offsets(AllocatorSelector selector) {
       + in_bytes(byte_offset_of(MarkCompactAllocator, bump_allocator));
     tlab_top_offset = allocator_base_offset + in_bytes(byte_offset_of(BumpAllocator, cursor));
     tlab_end_offset = allocator_base_offset + in_bytes(byte_offset_of(BumpAllocator, limit));
+  } else if (selector.tag == TAG_COMPRESSOR) {
+    if (semantics == Allocator::AllocatorDefault) {
+      int allocator_base_offset = allocators_base_offset
+        + in_bytes(byte_offset_of(Allocators, compressor))
+        + selector.index * sizeof(CompressorAllocator);
+      tlab_top_offset = allocator_base_offset + in_bytes(byte_offset_of(CompressorAllocator, cursor));
+      tlab_end_offset = allocator_base_offset + in_bytes(byte_offset_of(CompressorAllocator, limit));
+    } else if (semantics == Allocator::AllocatorReferenceArray) {
+      int allocator_base_offset = allocators_base_offset
+        + in_bytes(byte_offset_of(Allocators, compressor))
+        + selector.index * sizeof(CompressorAllocator);
+      tlab_top_offset = allocator_base_offset + in_bytes(byte_offset_of(CompressorAllocator, ref_cursor));
+      tlab_end_offset = allocator_base_offset + in_bytes(byte_offset_of(CompressorAllocator, ref_limit));
+    } else if (semantics == Allocator::AllocatorPrimitiveArray) {
+      int allocator_base_offset = allocators_base_offset
+        + in_bytes(byte_offset_of(Allocators, compressor))
+        + selector.index * sizeof(CompressorAllocator);
+      tlab_top_offset = allocator_base_offset + in_bytes(byte_offset_of(CompressorAllocator, non_ref_cursor));
+      tlab_end_offset = allocator_base_offset + in_bytes(byte_offset_of(CompressorAllocator, non_ref_limit));
+    } else {
+      fatal("Unimplemented semantics for compressor fastpath\n");
+      tlab_top_offset = 0;
+      tlab_end_offset = 0;
+    }
   } else {
     fatal("Unimplemented allocator fastpath\n");
     // Setting values to make compiler happy about unitialized variables. This

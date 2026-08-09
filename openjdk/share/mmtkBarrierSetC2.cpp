@@ -96,6 +96,16 @@ void MMTkBarrierSetC2::expand_allocate(PhaseMacroExpand* x,
   // To make it simple, we always use uint64_t for size comparison.
   uint64_t limit = max_non_los_bytes - extra_header;
 
+  Allocator semantics = AllocatorDefault;
+  if (alloc->is_AllocateArray()) {
+    ciKlass* k = x->_igvn.type(klass_node)->is_klassptr()->exact_klass();
+    if (k->is_obj_array_klass()) {
+      semantics = AllocatorReferenceArray;
+    } else if (k->is_type_array_klass()) {
+      semantics = AllocatorPrimitiveArray;
+    }
+  }
+
   // Check if allocation size is constant
   jlong const_size = x->_igvn.find_long_con(size_in_bytes, -1);
   if (const_size >= 0) {
@@ -191,7 +201,7 @@ void MMTkBarrierSetC2::expand_allocate(PhaseMacroExpand* x,
 
     {
       // Calculate offsets of TLAB top and end
-      MMTkAllocatorOffsets alloc_offsets = get_tlab_top_and_end_offsets(selector);
+      MMTkAllocatorOffsets alloc_offsets = get_tlab_top_and_end_offsets(selector, semantics);
 
       Node* thread = x->transform_later(new ThreadLocalNode());
       eden_top_adr = x->basic_plus_adr(x->top()/*not oop*/, thread, alloc_offsets.tlab_top_offset);

@@ -30,6 +30,7 @@
 #include "gc/shared/barrierSetConfig.hpp"
 #include "memory/memRegion.hpp"
 #include "mmtk.h"
+#include "mmtkMutator.hpp"
 #include "oops/access.hpp"
 #include "oops/arrayOop.hpp"
 #include "oops/accessBackend.hpp"
@@ -57,9 +58,10 @@ struct MMTkAllocatorOffsets {
  * and end (limit) for an MMTk Allocator.
  *
  * @param selector The current MMTk Allocator being used
+ * @param semantics The allocation semantics of the current allocation
  * @return the offsets to the top and end of the TLAB
  */
-MMTkAllocatorOffsets get_tlab_top_and_end_offsets(AllocatorSelector selector);
+MMTkAllocatorOffsets get_tlab_top_and_end_offsets(AllocatorSelector selector, Allocator semantics);
 
 #define FN_ADDR(function) CAST_FROM_FN_PTR(address, function)
 
